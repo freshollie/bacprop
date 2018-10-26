@@ -100,6 +100,7 @@
                 "sha256:ee55eb6bcf23ecc975e6b47c127c201b913598f38b6a300075f84eeef2d3baff",
                 "sha256:f1414e6cbcea8d22843e7eafdfdfae3dd1aba41d1945f6ca66e4806c07c4f454"
             ],
+            "markers": "python_version >= '3.4'",
             "version": "==6.0"
         }
     },
@@ -117,6 +118,7 @@
                 "sha256:b9c40e9750f3d77e6e4d441d8b0266cf555e7cdabdcff33c4fd06366ca761ef8",
                 "sha256:ec9ef8f4a9bc6f71eec99e1806bfa2de401650d996c59330782b89a5555c1497"
             ],
+            "markers": "python_version != '3.1.*' and python_version != '3.3.*' and python_version != '3.0.*' and python_version != '3.2.*' and python_version >= '2.7'",
             "version": "==4.3.4"
         },
         "lazy-object-proxy": {

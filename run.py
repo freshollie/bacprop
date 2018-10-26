@@ -1,3 +1,3 @@
-from bacprop.service import BacPropergator
+from bacprop.bacnet import main
 
-BacPropergator().run()
+main()
