@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 bacpypes = "*"
 hbmqtt = "*"
+paho-mqtt = "*"
 
 [dev-packages]
 pylint = "*"
