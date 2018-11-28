@@ -11,7 +11,6 @@ import json
 from typing import Dict, Union
 
 import paho.mqtt.client as mqtt
-from bacpypes.consolelogging import ArgumentParser
 from bacpypes.debugging import ModuleLogger, bacpypes_debugging
 from bacpypes.task import recurring_function
 
@@ -23,11 +22,13 @@ _log = ModuleLogger(globals())
 
 @bacpypes_debugging
 class BacPropagator(mqtt.Client):
-    def __init__(self):
+    def __init__(self, mqtt_addr: str, mqtt_port: str):
         mqtt.Client.__init__(self)
 
         self._sensors: Dict[int, Sensor] = {}
         self._bacnet = VirtualSensorNetwork("0.0.0.0")
+        self._mqtt_addr = mqtt_addr
+        self._mqtt_port = mqtt_port
 
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
@@ -79,7 +80,7 @@ class BacPropagator(mqtt.Client):
 
     def run(self):
         BacPropagator._info("Starting MQTT connection")
-        self.connect("192.168.0.103", 1883, 60)
+        self.connect(self._mqtt_addr, self._mqtt_port, 60)
 
         # Start the mqtt client in another thread, so
         # that we can start the BACPypes application in the main thread
@@ -97,7 +98,3 @@ class BacPropagator(mqtt.Client):
         BacPropagator._info("Stopping")
         self.loop_stop()
 
-
-if __name__ == "__main__":
-    args = ArgumentParser().parse_args()
-    BacPropagator().run()
