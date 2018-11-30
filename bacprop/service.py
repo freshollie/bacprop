@@ -79,14 +79,14 @@ class BacPropagator(mqtt.Client):
         )
 
     def run(self):
-        BacPropagator._info("Starting MQTT connection")
+        BacPropagator._info(f"Starting MQTT connection to {self._mqtt_addr}")
         self.connect(self._mqtt_addr, self._mqtt_port, 60)
 
         # Start the mqtt client in another thread, so
         # that we can start the BACPypes application in the main thread
         self.loop_start()
 
-        BacPropagator._info("Starting bacnet virtial sensor network")
+        BacPropagator._info("Starting virtial BACnet sensor network")
         try:
             self._bacnet.run()
         except KeyboardInterrupt:
