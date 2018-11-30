@@ -144,6 +144,7 @@ class VLANRouter:
         self.nsap.bind(self.bip, local_network, local_address)
 
 
+@bacpypes_debugging
 class Sensor(VLANApplication):
     def __init__(self, sensor_id):
         vlan_device = LocalDeviceObject(
@@ -153,14 +154,14 @@ class Sensor(VLANApplication):
             segmentationSupported="segmentedBoth",
             vendorIdentifier=15,
         )
-        _log.debug("    - vlan_device: %r", vlan_device)
+        if _debug: Sensor._debug("    - vlan_device: %r", vlan_device)
 
         vlan_address = Address(sensor_id)
-        _log.debug("    - vlan_address: %r", vlan_address)
+        if _debug: Sensor._debug("    - vlan_address: %r", vlan_address)
 
         # make the application, add it to the network
         VLANApplication.__init__(self, vlan_device, vlan_address)
-        _log.debug("    - vlan_app: %r", self)
+        if _debug: Sensor._debug("    - vlan_app: %r", self)
 
         self._num_value_objects = 0
 
@@ -180,7 +181,7 @@ class Sensor(VLANApplication):
 
     def set_values(self, temp, humidity, co2, timestamp):
         if _debug:
-            _log.debug(
+            Sensor._debug(
                 f"Setting values: temp={temp}, hum={humidity}, co2={co2}, ts={timestamp}"
             )
 

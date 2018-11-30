@@ -12,7 +12,6 @@ from typing import Dict, Union
 
 import paho.mqtt.client as mqtt
 from bacpypes.debugging import ModuleLogger, bacpypes_debugging
-from bacpypes.task import recurring_function
 
 from bacprop.bacnet import Sensor, VirtualSensorNetwork
 
@@ -49,21 +48,22 @@ class BacPropagator(mqtt.Client):
         try:
             data = json.loads(msg.payload)
         except json.JSONDecodeError as e:
-            BacPropagator._log.error(f"Could not decode sensor data: {e}")
+            BacPropagator._error(f"Could not decode sensor data: {e}")
             return
 
         # And then pass the data onto the handler
         try:
+            print(data)
             self._handle_sensor_data(data)
         except Exception as e:
-            BacPropagator._log.error(f"Could not handle sensor data: {e}")
+            BacPropagator._error(f"Could not handle sensor data: {e}")
 
     def _handle_sensor_data(self, data: Dict[str, Union[int, float]]):
         """
         Process the received device data. If the data is from a new
         device, create a new sensor on the bacnet network.
 
-        Set the sensors data to the received data
+        Set the sensor's data to the received data
         """
         sensor_id = int(data["sensorId"])
 
@@ -86,7 +86,7 @@ class BacPropagator(mqtt.Client):
         # that we can start the BACPypes application in the main thread
         self.loop_start()
 
-        BacPropagator._info("Starting virtial BACnet sensor network")
+        BacPropagator._info("Starting virtual BACnet sensor network")
         try:
             self._bacnet.run()
         except KeyboardInterrupt:
