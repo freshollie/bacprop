@@ -7,6 +7,10 @@ to the BACnet network as if they are devices within
 a VLAN
 """
 
+
+# TODO: Fault value if timestamp old
+# TODO: Battery voltage in data
+
 import json
 from typing import Dict, Union
 
