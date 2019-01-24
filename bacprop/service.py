@@ -13,7 +13,8 @@ from typing import Dict, Union
 import paho.mqtt.client as mqtt
 from bacpypes.debugging import ModuleLogger, bacpypes_debugging
 
-from bacprop.bacnet import Sensor, VirtualSensorNetwork
+from bacprop.bacnet.sensor import Sensor
+from bacprop.bacnet.network import VirtualSensorNetwork
 
 _debug = 0
 _log = ModuleLogger(globals())
