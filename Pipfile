@@ -5,18 +5,19 @@ name = "pypi"
 
 [packages]
 bacpypes = "*"
-hbmqtt = "*"
 paho-mqtt = "*"
 
 [dev-packages]
-pylint = "*"
 rope = "*"
-mypy = "*"
 black = "*"
-"pep8" = "*"
+pylint = "==2.3.0.dev0"
+mypy = "==0.660"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
 
 [requires]
-python_version = "3.6.6"
+python_version = "3.7.2"
 
 [pipenv]
 allow_prereleases = true

@@ -1,23 +1,21 @@
 import argparse
 import random
+from typing import Dict, Iterable
 
 from bacpypes.app import Application
 from bacpypes.appservice import ApplicationServiceAccessPoint, StateMachineAccessPoint
 from bacpypes.comm import bind
-from bacpypes.consolelogging import ArgumentParser
 from bacpypes.debugging import ModuleLogger, bacpypes_debugging
-from bacpypes.errors import ExecutionError
 from bacpypes.local.device import LocalDeviceObject
 from bacpypes.netservice import NetworkServiceAccessPoint, NetworkServiceElement
-from bacpypes.object import AnalogValueObject, Property, register_object_type
+from bacpypes.object import AnalogValueObject, register_object_type
 from bacpypes.pdu import Address, LocalBroadcast
-from bacpypes.primitivedata import Real
 from bacpypes.service.device import WhoIsIAmServices
 from bacpypes.service.object import (
     ReadWritePropertyMultipleServices,
     ReadWritePropertyServices,
 )
-from bacpypes.vlan import Network, Node
+from bacpypes.vlan import Node
 
 # some debugging
 _debug = 1
@@ -31,7 +29,7 @@ class _SensorValueObject(AnalogValueObject):
             _SensorValueObject._debug("__init__ %r", kwargs)
         AnalogValueObject.__init__(self, **kwargs)
 
-        self.set_value(5)
+        self.set_value(0)
 
     def set_value(self, value):
         self._values["presentValue"] = value
@@ -52,7 +50,9 @@ class _VLANApplication(
             _VLANApplication._debug(
                 "__init__ %r %r aseID=%r", vlan_device, vlan_address, aseID
             )
-        Application.__init__(self, vlan_device, vlan_address, aseID)
+        Application.__init__(self, localDevice=vlan_device, aseID=aseID)
+
+        self.localAddress = vlan_address
 
         # include a application decoder
         self.asap = ApplicationServiceAccessPoint()
@@ -104,7 +104,7 @@ class _VLANApplication(
 
 @bacpypes_debugging
 class Sensor(_VLANApplication):
-    def __init__(self, sensor_id):
+    def __init__(self, sensor_id: int):
         vlan_device = LocalDeviceObject(
             objectName="Sensor %d" % (sensor_id,),
             objectIdentifier=("device", sensor_id),
@@ -115,7 +115,7 @@ class Sensor(_VLANApplication):
         if _debug:
             Sensor._debug("    - vlan_device: %r", vlan_device)
 
-        vlan_address = Address(sensor_id)
+        vlan_address = Address(sensor_id.to_bytes(4, "big"))
         if _debug:
             Sensor._debug("    - vlan_address: %r", vlan_address)
 
@@ -125,28 +125,36 @@ class Sensor(_VLANApplication):
             Sensor._debug("    - vlan_app: %r", self)
 
         self._num_value_objects = 0
+        self._objects: Dict[str, _SensorValueObject] = {}
 
-        self._temp = self._add_value_object("analogValue", "temperature")
-        self._humidity = self._add_value_object("analogValue", "humidity")
-        self._co2 = self._add_value_object("analogValue", "co2")
-        self._timestamp = self._add_value_object("analogValue", "timestamp")
+    def _register_objects(self, keys: Iterable[str]):
+        keys_list = list(keys)
+        keys_list.sort()
 
-    def _add_value_object(self, _type, name) -> _SensorValueObject:
-        new_object = _SensorValueObject(
-            objectIdentifier=(_type, self._num_value_objects), objectName=name
-        )
-        self.add_object(new_object)
-        self._num_value_objects += 1
-
-        return new_object
-
-    def set_values(self, temp, humidity, co2, timestamp):
-        if _debug:
-            Sensor._debug(
-                f"Setting values: temp={temp}, hum={humidity}, co2={co2}, ts={timestamp}"
+        for key in keys_list:
+            new_object = _SensorValueObject(
+                objectIdentifier=("analogValue", self._num_value_objects),
+                objectName=key,
             )
+            self.add_object(new_object)
+            self._num_value_objects += 1
+            self._objects[key] = new_object
 
-        self._temp.set_value(temp)
-        self._humidity.set_value(humidity)
-        self._co2.set_value(co2)
-        self._timestamp.set_value(timestamp)
+    def _clear_objects(self):
+        for attr in self._objects:
+            self.delete_object(self._objects[attr])
+
+        self._num_value_objects = 0
+        self._objects = {}
+
+    def set_values(self, new_values: Dict[str, float]):
+        """
+        Set the values of the sensor. If the attributes have changed,
+        update the attributes.
+        """
+        if set(self._objects.keys()) != set(new_values.keys()):
+            self._clear_objects()
+            self._register_objects(new_values)
+
+        for attr in new_values:
+            self._objects[attr].set_value(new_values[attr])

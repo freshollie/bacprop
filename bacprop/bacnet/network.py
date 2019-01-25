@@ -5,7 +5,6 @@ from bacpypes.debugging import ModuleLogger, bacpypes_debugging
 from bacpypes.netservice import NetworkServiceAccessPoint, NetworkServiceElement
 from bacpypes.pdu import Address, LocalBroadcast
 from bacpypes.vlan import Network, Node
-
 from bacprop.bacnet.sensor import Sensor
 
 # some debugging
@@ -40,7 +39,7 @@ class _VLANRouter:
 
 
 class VirtualSensorNetwork(Network):
-    def __init__(self, local_address):
+    def __init__(self, local_address: str):
         Network.__init__(self, broadcast_address=LocalBroadcast())
 
         # create the VLAN router, bind it to the local network

@@ -102,4 +102,3 @@ class BacPropagator(mqtt.Client):
 
         BacPropagator._info("Stopping")
         self.loop_stop()
-

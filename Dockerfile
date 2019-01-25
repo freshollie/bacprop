@@ -1,4 +1,4 @@
-FROM python:3.6.6-alpine3.8
+FROM python:3.7.2-alpine3.8
 RUN pip3 install pipenv
 
 WORKDIR /bacprop
