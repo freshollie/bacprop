@@ -45,61 +45,71 @@ class _VLANApplication(
     ReadWritePropertyServices,
     ReadWritePropertyMultipleServices,
 ):
-    def __init__(self, vlan_device, vlan_address, aseID=None):
+    def __init__(
+        self, vlan_device: LocalDeviceObject, vlan_address: Address, aseID=None
+    ):
         if _debug:
             _VLANApplication._debug(
                 "__init__ %r %r aseID=%r", vlan_device, vlan_address, aseID
             )
         Application.__init__(self, localDevice=vlan_device, aseID=aseID)
 
-        self.localAddress = vlan_address
+        self._localAddress = vlan_address
 
         # include a application decoder
-        self.asap = ApplicationServiceAccessPoint()
+        self._asap = ApplicationServiceAccessPoint()
 
         # pass the device object to the state machine access point so it
         # can know if it should support segmentation
-        self.smap = StateMachineAccessPoint(vlan_device)
+        self._smap = StateMachineAccessPoint(vlan_device)
 
         # the segmentation state machines need access to the same device
         # information cache as the application
-        self.smap.deviceInfoCache = self.deviceInfoCache
+        self._smap.deviceInfoCache = self.deviceInfoCache
 
         # a network service access point will be needed
-        self.nsap = NetworkServiceAccessPoint()
+        self._nsap = NetworkServiceAccessPoint()
 
         # give the NSAP a generic network layer service element
-        self.nse = NetworkServiceElement()
-        bind(self.nse, self.nsap)
+        self._nse = NetworkServiceElement()
+        bind(self._nse, self._nsap)
 
         # bind the top layers
-        bind(self, self.asap, self.smap, self.nsap)
+        bind(self, self._asap, self._smap, self._nsap)
 
         # create a vlan node at the assigned address
-        self.vlan_node = Node(vlan_address)
+        self._vlan_node = Node(vlan_address)
 
         # bind the stack to the node, no network number
-        self.nsap.bind(self.vlan_node)
+        self._nsap.bind(self._vlan_node)
 
     def request(self, apdu):
         if _debug:
-            _VLANApplication._debug("[%s]request %r", self.vlan_node.address, apdu)
+            _VLANApplication._debug("[%s]request %r", self._vlan_node.address, apdu)
         Application.request(self, apdu)
 
     def indication(self, apdu):
         if _debug:
-            _VLANApplication._debug("[%s]indication %r", self.vlan_node.address, apdu)
+            _VLANApplication._debug("[%s]indication %r", self._vlan_node.address, apdu)
         Application.indication(self, apdu)
 
     def response(self, apdu):
         if _debug:
-            _VLANApplication._debug("[%s]response %r", self.vlan_node.address, apdu)
+            _VLANApplication._debug("[%s]response %r", self._vlan_node.address, apdu)
         Application.response(self, apdu)
 
     def confirmation(self, apdu):
         if _debug:
-            _VLANApplication._debug("[%s]confirmation %r", self.vlan_node.address, apdu)
+            _VLANApplication._debug(
+                "[%s]confirmation %r", self._vlan_node.address, apdu
+            )
         Application.confirmation(self, apdu)
+
+    def get_node(self):
+        return self._vlan_node
+
+    def get_address(self):
+        return self._localAddress
 
 
 @bacpypes_debugging
@@ -119,7 +129,7 @@ class Sensor(_VLANApplication):
         if _debug:
             Sensor._debug("    - vlan_address: %r", vlan_address)
 
-        # make the application, add it to the network
+        # make the application
         _VLANApplication.__init__(self, vlan_device, vlan_address)
         if _debug:
             Sensor._debug("    - vlan_app: %r", self)

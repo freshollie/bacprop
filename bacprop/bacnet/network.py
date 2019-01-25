@@ -1,3 +1,8 @@
+"""
+Provide some abstraction layers to the bacpypes
+API
+"""
+
 from bacpypes.bvllservice import AnnexJCodec, BIPSimple, UDPMultiplexer
 from bacpypes.comm import bind
 from bacpypes.core import deferred, run
@@ -37,6 +42,13 @@ class _VLANRouter:
         # bind the BIP stack to the local network
         self.nsap.bind(self.bip, local_network, local_address)
 
+    def bind(self, node: Node, address: int):
+        self.nsap.bind(node, address)
+
+    def start(self):
+        # send network topology
+        deferred(self.nse.i_am_router_to_network)
+
 
 class VirtualSensorNetwork(Network):
     def __init__(self, local_address: str):
@@ -50,13 +62,11 @@ class VirtualSensorNetwork(Network):
         self.add_node(router_node)
 
         # bind the router stack to the vlan network through this node
-        self._router.nsap.bind(router_node, 1)
-
-        # send network topology
-        deferred(self._router.nse.i_am_router_to_network)
+        self._router.bind(router_node, 1)
+        self._router.start()
 
     def add_sensor(self, device: Sensor):
-        self.add_node(device.vlan_node)
+        self.add_node(device.get_node())
 
     def run(self):
         run()

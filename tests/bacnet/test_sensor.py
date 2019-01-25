@@ -16,10 +16,10 @@ class TestSensor:
 
     def test_init_address(self) -> None:
         sensor = Sensor(1)
-        assert sensor.localAddress == Address((1).to_bytes(4, "big"))
+        assert sensor.get_address() == Address((1).to_bytes(4, "big"))
 
         sensor = Sensor(65565)
-        assert sensor.localAddress == Address((65565).to_bytes(4, "big"))
+        assert sensor.get_address() == Address((65565).to_bytes(4, "big"))
 
     def test_set_values(self) -> None:
         sensor = Sensor(0)
