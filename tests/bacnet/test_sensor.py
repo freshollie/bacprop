@@ -3,26 +3,33 @@ from bacpypes.apdu import ReadPropertyRequest
 from bacpypes.object import get_datatype
 
 from bacprop.bacnet.sensor import Sensor, Application
+from bacprop.bacnet import sensor
+from bacpypes.basetypes import StatusFlags
 from pytest_mock import MockFixture
+from typing import Dict
+
+import time
+
+sensor._debug = 1
 
 
 class TestSensor:
     def test_init_id(self) -> None:
-        sensor = Sensor(1)
+        sensor = Sensor(1, Address(1))
         assert sensor.localDevice.ReadProperty("objectIdentifier") == ("device", 1)
 
-        sensor = Sensor(65565)
-        assert sensor.localDevice.ReadProperty("objectIdentifier") == ("device", 65565)
+        sensor = Sensor(2, Address(2))
+        assert sensor.localDevice.ReadProperty("objectIdentifier") == ("device", 2)
 
     def test_init_address(self) -> None:
-        sensor = Sensor(1)
-        assert sensor.get_address() == Address((1).to_bytes(4, "big"))
+        sensor = Sensor(1, Address(2))
+        assert sensor._vlan_address == Address(2)
 
-        sensor = Sensor(65565)
-        assert sensor.get_address() == Address((65565).to_bytes(4, "big"))
+        sensor = Sensor(65565, Address(5))
+        assert sensor._vlan_address == Address(5)
 
     def test_set_values(self) -> None:
-        sensor = Sensor(0)
+        sensor = Sensor(0, Address(0))
 
         sensor.set_values({"testProp": 0.2})
 
@@ -34,8 +41,54 @@ class TestSensor:
         prop = sensor.get_object_name("testProp")
         assert prop.ReadProperty("presentValue") == 0.6
 
+        assert abs(time.time() - sensor.get_update_time()) < 1
+
+    def test_mark_fault(self) -> None:
+        sensor = Sensor(0, Address(0))
+
+        values: Dict[str, float] = {"something": 2, "anotherThing": 5}
+        sensor.set_values(values)
+
+        for key in values:
+            assert (
+                sensor.get_object_name(key).ReadProperty("statusFlags")[
+                    StatusFlags.bitNames["fault"]
+                ]
+                == 0
+            )
+
+        sensor.mark_fault()
+        assert sensor.has_fault()
+
+        for key in values:
+            assert (
+                sensor.get_object_name(key).ReadProperty("statusFlags")[
+                    StatusFlags.bitNames["fault"]
+                ]
+                == 1
+            )
+
+    def test_mark_ok(self) -> None:
+        sensor = Sensor(0, Address(0))
+
+        values: Dict[str, float] = {"something": 2, "anotherThing": 5}
+        sensor.set_values(values)
+
+        sensor.mark_fault()
+        sensor.mark_ok()
+
+        assert not sensor.has_fault()
+
+        for key in values:
+            assert (
+                sensor.get_object_name(key).ReadProperty("statusFlags")[
+                    StatusFlags.bitNames["fault"]
+                ]
+                == 0
+            )
+
     def test_change_props(self) -> None:
-        sensor = Sensor(0)
+        sensor = Sensor(0, Address(0))
 
         sensor.set_values({"testProp": 0.2})
 
@@ -53,33 +106,37 @@ class TestSensor:
         assert sensor.get_object_name("prop2").ReadProperty("presentValue") == -20
 
     def test_request_hook(self, mocker: MockFixture) -> None:
-        sensor = Sensor(0)
+        sensor = Sensor(0, Address(0))
         mocker.patch.object(Application, "request", autospec=True)
 
         sensor.request("something")
+        # pylint: disable=no-member
         Application.request.assert_called_with(sensor, "something")
 
     def test_response_hook(self, mocker: MockFixture) -> None:
-        sensor = Sensor(0)
+        sensor = Sensor(0, Address(0))
 
         mocker.patch.object(Application, "response", autospec=True)
 
         sensor.response("something")
+        # pylint: disable=no-member
         Application.response.assert_called_with(sensor, "something")
 
     def test_indication_hook(self, mocker: MockFixture) -> None:
-        sensor = Sensor(0)
+        sensor = Sensor(0, Address(0))
 
         mocker.patch.object(Application, "indication", autospec=True)
 
         sensor.indication("something")
+        # pylint: disable=no-member
         Application.indication.assert_called_with(sensor, "something")
 
     def test_confirmation_hook(self, mocker: MockFixture) -> None:
-        sensor = Sensor(0)
+        sensor = Sensor(0, Address(0))
 
         mocker.patch.object(Application, "confirmation", autospec=True)
 
         sensor.confirmation("something")
+        # pylint: disable=no-member
         Application.confirmation.assert_called_with(sensor, "something")
 

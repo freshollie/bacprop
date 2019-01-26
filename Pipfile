@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 bacpypes = "*"
 paho-mqtt = "*"
+hbmqtt = "*"
+pytest-mypy = "*"
 
 [dev-packages]
 rope = "*"
@@ -21,3 +23,6 @@ python_version = "3.7.2"
 
 [pipenv]
 allow_prereleases = true
+
+[scripts]
+test = "sh -c 'mypy -p bacprop && pytest'"
