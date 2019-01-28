@@ -5,9 +5,7 @@ name = "pypi"
 
 [packages]
 bacpypes = "*"
-paho-mqtt = "*"
 hbmqtt = "*"
-pytest-mypy = "*"
 
 [dev-packages]
 rope = "*"
@@ -17,6 +15,9 @@ mypy = "==0.660"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+pre-commit = "*"
+pytest-mypy = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.7.2"
@@ -26,3 +27,4 @@ allow_prereleases = true
 
 [scripts]
 test = "sh -c 'mypy -p bacprop && pytest'"
+lint = 'black -v --check tests bacprop'

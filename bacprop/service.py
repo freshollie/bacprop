@@ -1,6 +1,7 @@
 import asyncio
-import traceback
+import logging
 import time
+import traceback
 from threading import Thread
 from typing import Dict
 
@@ -8,9 +9,8 @@ from bacpypes.debugging import ModuleLogger, bacpypes_debugging
 from hbmqtt.broker import Broker
 
 from bacprop.bacnet.network import VirtualSensorNetwork
-from bacprop.stream import SensorStream
 from bacprop.defs import Logable
-import logging
+from bacprop.mqtt import SensorStream
 
 _debug = 0
 _log = ModuleLogger(globals())
@@ -67,8 +67,8 @@ class BacPropagator(Logable):
                 )
             sensor.mark_ok()
 
-    async def _outdated_check_loop(self) -> None:
-        BacPropagator._info("Starting outdated check loop")
+    async def _fault_check_loop(self) -> None:
+        BacPropagator._info("Starting fault check loop")
         while self._running:
             for sensor_id, sensor in self._sensor_net.get_sensors().items():
                 if (
@@ -94,16 +94,23 @@ class BacPropagator(Logable):
 
             self._handle_sensor_data(data)
 
-    def start(self) -> None:
-        self._running = True
+    def _start_bacnet_thread(self) -> Thread:
         BacPropagator._info("Starting bacnet sensor network")
+
         bacnet_thread = Thread(target=self._sensor_net.run)
         bacnet_thread.daemon = True
         bacnet_thread.start()
 
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self._outdated_check_loop())
+        return bacnet_thread
 
+    def start(self) -> None:
+        self._running = True
+
+        bacnet_thread = self._start_bacnet_thread()
+
+        asyncio.ensure_future(self._fault_check_loop())
+
+        loop = asyncio.get_event_loop()
         try:
             loop.run_until_complete(self._main_loop())
         except KeyboardInterrupt:

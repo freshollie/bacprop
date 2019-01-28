@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/ambv/black
+    rev: master
+    hooks:
+      - id: black
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: master # Use the sha / tag you want to point at
+    hooks:
+      - id: mypy

@@ -43,6 +43,17 @@ class TestSensor:
 
         assert abs(time.time() - sensor.get_update_time()) < 1
 
+    def test_set_values_object_order(self) -> None:
+        sensor = Sensor(0, Address(0))
+
+        sensor.set_values({"testProp": 0.2, "anotherProp": 0.7})
+
+        prop = sensor.get_object_name("testProp")
+        assert prop.ReadProperty("objectIdentifier") == ("analogValue", 1)
+
+        prop2 = sensor.get_object_name("anotherProp")
+        assert prop2.ReadProperty("objectIdentifier") == ("analogValue", 0)
+
     def test_mark_fault(self) -> None:
         sensor = Sensor(0, Address(0))
 

@@ -1,10 +1,10 @@
+import asyncio
 import json
 from typing import AsyncIterable, Dict, NoReturn, Union
 
 from bacpypes.debugging import ModuleLogger, bacpypes_debugging
 from hbmqtt.broker import Broker
 from hbmqtt.client import QOS_2, MQTTClient
-import asyncio
 
 _debug = 0
 _log = ModuleLogger(globals())
