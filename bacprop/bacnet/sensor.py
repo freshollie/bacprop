@@ -165,7 +165,7 @@ class Sensor(_VLANApplication, Logable):
         self._object_index = 0
         self._objects = {}
 
-    def set_values(self, new_values: Dict[str, float]) -> None:
+    def set_values(self, new_values: Dict[str, Any]) -> None:
         """
         Set the values of the sensor. If the attributes have changed,
         update the attributes.

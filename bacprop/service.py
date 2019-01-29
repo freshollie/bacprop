@@ -3,7 +3,7 @@ import logging
 import time
 import traceback
 from threading import Thread
-from typing import Dict
+from typing import Dict, Any
 
 from bacpypes.debugging import ModuleLogger, bacpypes_debugging
 from hbmqtt.broker import Broker
@@ -27,7 +27,7 @@ class BacPropagator(Logable):
         self._sensor_net = VirtualSensorNetwork("0.0.0.0")
         self._running = False
 
-    def _handle_sensor_data(self, data: Dict[str, float]) -> None:
+    def _handle_sensor_data(self, data: Dict[str, Any]) -> None:
         if BacPropagator.SENSOR_ID_KEY not in data:
             BacPropagator._warning(f"sensorId missing from sensor data: {data}")
             return
@@ -37,6 +37,12 @@ class BacPropagator(Logable):
         except ValueError:
             BacPropagator._warning(
                 f"sensorId {data[BacPropagator.SENSOR_ID_KEY]} could not be decoded"
+            )
+            return
+
+        if sensor_id < 0:
+            BacPropagator._warning(
+                f"sensorId {data[BacPropagator.SENSOR_ID_KEY]} is an invalid id"
             )
             return
 

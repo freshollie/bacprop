@@ -12,16 +12,15 @@ _log = ModuleLogger(globals())
 
 @bacpypes_debugging
 class SensorStream(MQTTClient):
+    BROKER_CONFIG = {
+        "listeners": {"default": {"type": "tcp", "bind": "0.0.0.0:1883"}},
+        "topic-check": {"enabled": False},
+    }
+
     def __init__(self) -> None:
         # pylint: disable=no-member
         SensorStream._info("Initialising broker on 0.0.0.0:1883")
-        self._broker = Broker(
-            {
-                "listeners": {"default": {"type": "tcp", "bind": "0.0.0.0:1883"}},
-                "topic-check": {"enabled": False},
-            },
-            asyncio.get_event_loop(),
-        )
+        self._broker = Broker(SensorStream.BROKER_CONFIG, asyncio.get_event_loop())
         self._running = False
         MQTTClient.__init__(self)
 
@@ -56,6 +55,7 @@ class SensorStream(MQTTClient):
             # pylint: disable=no-member
             SensorStream._debug("Shutting down broker")
 
+        await self.disconnect()
         await self._broker.shutdown()
 
         self._running = False

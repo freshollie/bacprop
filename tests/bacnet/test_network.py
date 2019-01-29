@@ -5,6 +5,7 @@ from bacpypes.comm import service_map
 from bacprop.bacnet.sensor import Sensor
 
 from pytest_mock import MockFixture
+import pytest
 
 # Required for full coverage
 network._debug = 1
@@ -48,13 +49,10 @@ class TestVirtualSensorNetwork:
         mocker.patch("bacprop.bacnet.network._VLANRouter")
         network = VirtualSensorNetwork("0.0.0.0")
 
-        sensor = network.create_sensor(7)
+        network.create_sensor(7)
 
-        try:
+        with pytest.raises(ValueError):
             network.create_sensor(7)
-            assert False, "Should throw error as sensor already exists"
-        except ValueError:
-            pass
 
     def test_get_sensor(self, mocker: MockFixture) -> None:
         mocker.patch("bacprop.bacnet.network._VLANRouter")
