@@ -20,6 +20,9 @@ A sensor message might look like:
 }
 ```
 
+`bacprop` will mark faultly any sensor object which it has no received data from
+after 10 minutes, as specified in the `bacprop/service.py` definition.
+
 ## Developing
 
 `bacprop` is developed using `pipenv`
