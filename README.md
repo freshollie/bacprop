@@ -29,6 +29,10 @@ after 10 minutes, as specified in the `bacprop/service.py` definition.
 
 `pipenv install --dev` will install all requirements for development to take place.
 
+## Testing
+
+`bacprop` is 100% unit tested, and all changes should continue this.
+
 `pipenv run python -m bacprop` can be used to test changes
 
 `pipenv run test` will run all tests
