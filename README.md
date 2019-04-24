@@ -42,3 +42,7 @@ after 10 minutes, as specified in the `bacprop/service.py` definition.
 ## Docker
 
 Docker images have been provided for `bacprop`. Both an armv6 image and a x86 image exist.
+
+## License
+
+`MIT`
