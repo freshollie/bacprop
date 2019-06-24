@@ -1,0 +1,46 @@
+image: python:3.7.2
+
+stages:
+  - test
+  - build
+  - deploy
+
+# This folder is cached between builds
+# http://docs.gitlab.com/ce/ci/yaml/README.html#cache
+cache:
+  paths:
+    - ~/.cache/pip/
+
+before_script:
+  - pip install pipenv
+  - pipenv install --ignore-pipfile --dev
+
+lint:
+  stage: test
+  script:
+    - pipenv run lint
+
+test:
+  stage: test
+  script:
+    - pipenv run test
+
+build:
+  stage: build
+  image: docker:latest
+  only:
+    - develop
+    - master
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: "overlay"
+  before_script:
+    - docker version
+    - docker info
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --pull ."
+    - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}"
+  after_script:
+    - "docker logout ${CI_REGISTRY}"
