@@ -25,6 +25,20 @@ test:
   script:
     - pipenv run test
 
+publish-coverage:
+  stage: deploy
+  dependencies:
+    - test
+  script:
+    - mv htmlcov/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: forever
+  only:
+    - master
+
+
 build:
   stage: build
   image: docker:latest

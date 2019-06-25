@@ -1,5 +1,8 @@
 # BACprop
 
+[![pipeline status](https://gitlab.com/freshollie/bacprop/badges/master/pipeline.svg)](https://gitlab.com/freshollie/bacprop/commits/master)
+[![coverage report](https://gitlab.com/freshollie/bacprop/badges/master/coverage.svg)](http://freshollie.gitlab.io/bacprop)
+
 A MQTT to BACnet relay. Translating IoT data into virtual sensors on a bacnet network.
 
 ## Usage

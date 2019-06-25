@@ -26,5 +26,5 @@ python_version = "3.7.2"
 allow_prereleases = true
 
 [scripts]
-test = "sh -c 'mypy -p bacprop && pytest'"
-lint = 'black -v --check tests bacprop'
+test = "pytest"
+lint = "sh -c 'mypy -p bacprop && black -v --check tests bacprop'"

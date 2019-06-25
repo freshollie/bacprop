@@ -47,6 +47,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+coer
 
 # Translations
 *.mo
@@ -111,3 +112,4 @@ venv.bak/
 dmypy.json
 
 .vscode/
+.DS_Store
