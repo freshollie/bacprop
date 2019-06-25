@@ -73,7 +73,7 @@ build-arm32v6:
     - docker info
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
-    - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}-arm32v6 --pull arm32v6.Dockerfile"
+    - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}-arm32v6 --pull -f arm32v6.Dockerfile ."
     - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}"
   after_script:
     - docker logout

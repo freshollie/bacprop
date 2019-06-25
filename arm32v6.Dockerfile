@@ -10,6 +10,4 @@ RUN pipenv install --system --deploy --ignore-pipfile \
 
 COPY bacprop bacprop
 
-RUN ls -la
-
 ENTRYPOINT [ "python", "-m", "bacprop"]
