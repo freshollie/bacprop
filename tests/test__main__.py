@@ -7,4 +7,3 @@ def test_calls_cli(mocker: MockFixture) -> None:
     import bacprop.__main__
 
     mock_main.assert_called_once()
-

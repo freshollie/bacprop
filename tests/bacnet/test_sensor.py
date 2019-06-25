@@ -150,4 +150,3 @@ class TestSensor:
         sensor.confirmation("something")
         # pylint: disable=no-member
         Application.confirmation.assert_called_with(sensor, "something")
-
