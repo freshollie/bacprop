@@ -6,7 +6,7 @@ WORKDIR /bacprop
 COPY Pipfile.lock Pipfile ./
 
 RUN pipenv install --system --deploy --ignore-pipfile \
-    && pip3 uninstall pipenv
+    && pip3 uninstall -y pipenv
 
 COPY bacprop bacprop
 
