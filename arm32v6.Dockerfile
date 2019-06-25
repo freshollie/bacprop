@@ -1,5 +1,5 @@
 FROM arm32v6/python:3.7.2-alpine3.8
-RUN pip3 install pipenv
+RUN pip3 install pipenv --no-cache-dir
 
 WORKDIR /bacprop
 
