@@ -24,9 +24,12 @@ test:
   stage: test
   script:
     - pipenv run test
+  artifacts:
+    paths:
+      - htmlcov/
 
 publish-coverage:
-  stage: deploy
+  stage: build
   dependencies:
     - test
   script:
