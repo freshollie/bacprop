@@ -34,7 +34,6 @@ publish-coverage:
   artifacts:
     paths:
       - public
-    expire_in: forever
   only:
     - master
 
